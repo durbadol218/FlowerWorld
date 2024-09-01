@@ -25,9 +25,9 @@ router.register(r'accounts', AccountViewset, basename='account')
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('user/register/', UserRegistrationApiView.as_view(), name='register'),
+    path('register/', UserRegistrationApiView.as_view(), name='register'),
     path('account/register/', AccountRegistrationApiView.as_view(), name='account_register'),
-    path('user/activate/<uid64>/<token>/', activateAccount, name='activate'),
-    path('user/login/', UserLoginApiView.as_view(), name='login'),
-    path('user/logout/', UserLogoutApiView.as_view(), name='logout'),
+    path('activate/<uid64>/<token>/', activateAccount, name='activate'),
+    path('login/', UserLoginApiView.as_view(), name='login'),
+    path('logout/', UserLogoutApiView.as_view(), name='logout'),
 ]
