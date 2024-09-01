@@ -70,7 +70,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
 ]
-CSRF_TRUSTED_ORIGINS = ['https://flowerworld-1.onrender.com','https://*.127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://flowerworld.onrender.com','https://*.127.0.0.1']
 
 ROOT_URLCONF = 'FlowerWorld.urls'
 
