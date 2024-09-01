@@ -48,12 +48,12 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
-REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES":
-        [
-            "rest_framework.permissions.IsAuthenticated",
-        ]
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_PERMISSION_CLASSES":
+#         [
+#             "rest_framework.permissions.IsAuthenticated",
+#         ]
+# }
 
 
 MIDDLEWARE = [
@@ -69,7 +69,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
-    # Add any other origins if needed
 ]
 CSRF_TRUSTED_ORIGINS = ['https://flowerworld-1.onrender.com','https://*.127.0.0.1']
 
