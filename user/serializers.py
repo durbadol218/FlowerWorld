@@ -3,25 +3,22 @@ from . import models
 from django.contrib.auth.models import User
 from .constants import USER_TYPE
 
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Account
-        fields = ['id', 'user_type', 'phone', 'image']
-        
+
 class UserSerializer(serializers.ModelSerializer):
-    account = serializers.StringRelatedField()
-    account = AccountSerializer(read_only=True)
     class Meta:
         model = User
         fields = ['id','username', 'first_name', 'last_name', 'email', 'account']
         
-
+class AccountSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = models.Account
+        fields = ['user', 'user_type', 'phone', 'image']
+        
 class UserRegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(required=True)
     phone = serializers.CharField(required=True)
-    # user_type = models.CharField(max_length=20, choices=USER_TYPE)
     user_type = serializers.ChoiceField(choices=USER_TYPE, required=True)
-    # user_type = serializers.CharField(required=True,choices=USER_TYPE)
     image = serializers.ImageField(required=False, allow_null=True)
     class Meta:
         model = User
@@ -50,23 +47,24 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.is_active = False
         user.save()
-        account = models.Account(user=user, user_type=user_type, phone=phone, image=image)
+        
+        account = models.Account.objects.create(user=user, user_type=user_type)
         account.save()
         return user
 
-class AccountRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Account
-        fields = ['user','image', 'phone', 'user_type']
+# class AccountRegisterSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.Account
+#         fields = ['user','image', 'phone', 'user_type']
 
-    def save(self):
-        user = self.validated_data['user']
-        phone = self.validated_data['phone']
-        image = self.validated_data['image']
-        user_type = self.validated_data['user_type']
-        account = models.Account(user=user, phone=phone, image=image, user_type=user_type)
-        account.save()
-        return account
+#     def save(self):
+#         user = self.validated_data['user']
+#         phone = self.validated_data['phone']
+#         image = self.validated_data['image']
+#         user_type = self.validated_data['user_type']
+#         account = models.Account(user=user, phone=phone, image=image, user_type=user_type)
+#         account.save()
+#         return account
     
 
 

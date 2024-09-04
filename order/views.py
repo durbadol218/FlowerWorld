@@ -1,79 +1,94 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from .models import Order
 from .serializers import OrderSerializer
+from flowers.models import Flower
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    
+
     def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(user=user)
+        queryset = super().get_queryset()
+        customer_id = self.request.query_params.get('customer_id')
+        if customer_id:
+            queryset = queryset.filter(user_id=customer_id)
+        return queryset
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        flower = serializer.validated_data.get('flower')
+        user_account = serializer.validated_data.get('user')
+        quantity = serializer.validated_data.get('quantity')
 
+        if user_account:
+            email = user_account.user.email  # Retrieve email from related User model
+        else:
+            email = None
 
+        if flower and flower.stock >= quantity:
+            # Update flower stock
+            flower.stock -= quantity
+            flower.save()
 
+            # Calculate total amount
+            total_amount = flower.price * quantity
 
+            # Save order with total amount
+            order = serializer.save(total_amount=total_amount)
 
+            # Send confirmation email
+            if email:
+                email_subject = "Thank You for Your Order"
+                email_body = render_to_string('orderemail.html', {
+                    'flower_name': flower.flower_name,
+                    'quantity': quantity,
+                    'total_amount': total_amount,
+                    'email': email,
+                    'phone': user_account.phone  # Use phone from Account model
+                })
+                email_message = EmailMultiAlternatives(email_subject, '', to=[email])
+                email_message.attach_alternative(email_body, "text/html")
+                email_message.send()
+        else:
+            # Handle case where flower is out of stock or quantity is invalid
+            raise serializers.ValidationError("Insufficient stock for the selected flower.")
 
-
-
-
-
-
-
-
-
-
-
-# User Authentication view
-# def validate_user_session(id, token):
-#     """Allow ordering for only authenticated users"""
-#     UserModel = User
-#     try:
-#         user = UserModel.objects.get(pk=id)
-#         if user.session_token == token:
-#             return True
-#         else:
-#             return False
-#     except UserModel.DoesNotExist:
-#         return False
-
-
-# def add_order(request, id, token):
-#     if not validate_user_session(id, token):
-#         return JsonResponse({'error':'Please login again', 'code':'1'})
-
-#     if request.method == "POST":
-#         user_id = id
-#         transaction_id = request.POST['transaction_id']
-#         amount = request.POST['amount']
-#         products = request.POST['products']
-#         total_no_products = len(products.split(',')[:-1])
-
-#         UserModel = get_user_model()
-
-#         try:
-#             user = UserModel.objects.get(pk=user_id)
         
-#         except UserModel.DoesNotExist:
-#             return JsonResponse({'error':'User does not exist'})
+class OrderDetailAPIView(APIView):
+    def get_object(self, pk):
+        return get_object_or_404(Order, pk=pk)
 
-#         order_detail = Order(user=user, product_names=products, total_products=total_no_products, total_amount=amount, transaction_id=transaction_id)
+    def get(self, request, pk):
+        order = self.get_object(pk)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
 
-#         order_detail.save()
+    def put(self, request, pk):
+        order = self.get_object(pk)
+        serializer = OrderSerializer(order, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#         return JsonResponse({'success':True, 'error':False, 'msg':'Order placed successfully'})
+    def patch(self, request, pk):
+        order = self.get_object(pk)
+        serializer = OrderSerializer(order, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# # Order View
-# class OrderViewSet(viewsets.ModelViewSet):
-#     # Operations to be performed
-#     queryset = Order.objects.all().order_by('id')
-#     # Class responsible for serializing the data 
-#     serializer_class = OrderSerializer
+    def delete(self, request, pk):
+        order = self.get_object(pk)
+        order.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
 

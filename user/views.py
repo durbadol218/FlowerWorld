@@ -21,9 +21,15 @@ from django.template.loader import render_to_string
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
 
-class AccountViewset(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
+    
+class AccountViewset(viewsets.ModelViewSet):
+    queryset = models.Account.objects.all()
+    serializer_class = serializers.AccountSerializer
+
 
 class UserRegistrationApiView(APIView):
     serializer_class = serializers.UserRegisterSerializer
@@ -51,19 +57,19 @@ class UserRegistrationApiView(APIView):
         
         return Response(serializer.errors)
     
-class AccountRegistrationApiView(APIView):
-    serializer_class = serializers.AccountRegisterSerializer
-    def post(self, request):
-        if request.user.is_authenticated:
-            return Response({"detail": "You are already logged in. Log out to create a new account."},
-                            status=status.HTTP_400_BAD_REQUEST)
-        print("request-data is::",request.data)
-        serializer = self.serializer_class(data=request.data) 
-        print("serializer is::",serializer)
-        if serializer.is_valid(): 
-            account = serializer.save()
-            return Response("Account Created Successfully!")
-        return Response(serializer.errors)
+# class AccountRegistrationApiView(APIView):
+#     serializer_class = serializers.AccountRegisterSerializer
+#     def post(self, request):
+#         if request.user.is_authenticated:
+#             return Response({"detail": "You are already logged in. Log out to create a new account."},
+#                             status=status.HTTP_400_BAD_REQUEST)
+#         print("request-data is::",request.data)
+#         serializer = self.serializer_class(data=request.data) 
+#         print("serializer is::",serializer)
+#         if serializer.is_valid(): 
+#             account = serializer.save()
+#             return Response("Account Created Successfully!")
+#         return Response(serializer.errors)
     
 def activateAccount(request, uid64, token):
     try:
@@ -91,8 +97,10 @@ class UserLoginApiView(APIView):
             
             if user:
                 token, _ = Token.objects.get_or_create(user=user)
+                account, created = Account.objects.get_or_create(user=user)
+                print(account)
                 login(request, user)
-                return Response({'token':token.key, 'user_id': user.id})
+                return Response({'token':token.key, 'user_id': account.id})
             else:
                 return  Response({'error':'Invalid Credential'})
         return Response(serializer.errors)
