@@ -16,7 +16,7 @@ class Flower(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='flowers/images/')
-    category = models.ForeignKey(FlowerCategory, related_name='flowers', on_delete=models.CASCADE)
+    category = models.ManyToManyField(FlowerCategory, related_name='flowers',)
     stock = models.IntegerField(default=0)
     
     def __str__(self):
