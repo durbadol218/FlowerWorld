@@ -97,7 +97,7 @@ class UserLoginApiView(APIView):
             
             if user:
                 token, _ = Token.objects.get_or_create(user=user)
-                account, created = Account.objects.get_or_create(user=user)
+                account, created = models.Account.objects.get_or_create(user=user)
                 print(account)
                 login(request, user)
                 return Response({'token':token.key, 'user_id': account.id})
