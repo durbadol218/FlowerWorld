@@ -10,7 +10,8 @@ from flowers.models import Flower
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-
+    http_method_names = ['get', 'post', 'patch', 'put', 'delete', 'head', 'options']
+    
     def get_queryset(self):
         queryset = super().get_queryset()
         customer_id = self.request.query_params.get('customer_id')
@@ -53,7 +54,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 email_message.attach_alternative(email_body, "text/html")
                 email_message.send()
         else:
-            # Handle case where flower is out of stock or quantity is invalid
             raise serializers.ValidationError("Insufficient stock for the selected flower.")
 
         

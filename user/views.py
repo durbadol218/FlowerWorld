@@ -41,10 +41,11 @@ class UserRegistrationApiView(APIView):
         
         if serializer.is_valid(): 
             user = serializer.save()
+            print(user)
             token = default_token_generator.make_token(user)
-            print(token)
+            print("Token", token)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            print(uid)
+            print("uid",uid)
             confirm_link = f"https://flowerworld.onrender.com/user/activate/{uid}/{token}"
             
             email_subject = "Confirmation Email for Activate Account"
@@ -56,26 +57,12 @@ class UserRegistrationApiView(APIView):
             return Response("Check Your Email For Confirmation")
         
         return Response(serializer.errors)
-    
-# class AccountRegistrationApiView(APIView):
-#     serializer_class = serializers.AccountRegisterSerializer
-#     def post(self, request):
-#         if request.user.is_authenticated:
-#             return Response({"detail": "You are already logged in. Log out to create a new account."},
-#                             status=status.HTTP_400_BAD_REQUEST)
-#         print("request-data is::",request.data)
-#         serializer = self.serializer_class(data=request.data) 
-#         print("serializer is::",serializer)
-#         if serializer.is_valid(): 
-#             account = serializer.save()
-#             return Response("Account Created Successfully!")
-#         return Response(serializer.errors)
-    
+
 def activateAccount(request, uid64, token):
     try:
         uid = urlsafe_base64_decode(uid64).decode()
         user = User._default_manager.get(pk=uid)
-    except User.DoesNotExist:
+    except(User.DoesNotExist):
         user=None
         
     if user is not None and default_token_generator.check_token(user, token):
@@ -86,8 +73,6 @@ def activateAccount(request, uid64, token):
         return redirect('register')
     
 class UserLoginApiView(APIView):
-    serializer_class = serializers.UserLoginSerializer
-    
     def post(self, request):
         serializer = serializers.UserLoginSerializer(data=self.request.data)
         if serializer.is_valid():
