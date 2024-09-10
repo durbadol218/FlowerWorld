@@ -11,7 +11,6 @@ class FlowerCategory(models.Model):
         return self.name
 
 class Flower(models.Model):
-    seller = models.ForeignKey(User, related_name="flower_seller", on_delete=models.CASCADE)
     flower_name = models.CharField(max_length=150)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
