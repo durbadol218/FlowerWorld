@@ -10,148 +10,33 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
 #Previous versions
-# class OrderViewSet(viewsets.ModelViewSet):
-#     queryset = Order.objects.all()
-#     serializer_class = OrderSerializer
-#     http_method_names = ['get', 'post', 'patch', 'put', 'delete', 'head', 'options']
-    
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         customer_id = self.request.query_params.get('customer_id')
-#         if customer_id:
-#             queryset = queryset.filter(user_id=customer_id)
-#         return queryset
-
-#     def perform_create(self, serializer):
-#         flower = serializer.validated_data.get('flower')
-#         user_account = serializer.validated_data.get('user')
-#         quantity = serializer.validated_data.get('quantity')
-
-#         if user_account:
-#             email = user_account.user.email
-#             email = None
-
-#         if flower and flower.stock >= quantity:
-#             flower.stock -= quantity
-#             flower.save()
-#             total_amount = flower.price * quantity
-
-#             order = serializer.save(total_amount=total_amount)
-
-#             if email:
-#                 email_subject = "Thank You for Your Order"
-#                 email_body = render_to_string('orderemail.html', {
-#                     'flower_name': flower.flower_name,
-#                     'quantity': quantity,
-#                     'total_amount': total_amount,
-#                     'email': email,
-#                     'phone': user_account.phone
-#                 })
-#                 email_message = EmailMultiAlternatives(email_subject, '', to=[email])
-#                 email_message.attach_alternative(email_body, "text/html")
-#                 email_message.send()
-#         else:
-#             raise serializers.ValidationError("Insufficient stock for the selected flower.")
-
-# class OrderViewSet(viewsets.ModelViewSet):
-#     queryset = Order.objects.all()
-#     serializer_class = OrderSerializer
-#     http_method_names = ['get', 'post', 'patch', 'put', 'delete', 'head', 'options']
-    
-#     def get_queryset(self):
-#         user_account = self.request.user.account
-#         if user_account.user_type == 'admin':
-#             return Order.objects.all()
-#         else:
-#             return Order.objects.filter(account=user_account)
-
-#     def perform_create(self, serializer):
-#         flower = serializer.validated_data.get('flower')
-#         user_account = serializer.validated_data.get('user')
-#         quantity = serializer.validated_data.get('quantity')
-
-#         # Ensure user has an email to send
-#         if user_account and user_account.user.email:
-#             email = user_account.user.email
-#         else:
-#             email = None
-
-#         if flower and flower.stock >= quantity:
-#             flower.stock -= quantity
-#             flower.save()
-
-#             total_amount = flower.price * quantity
-
-#             order = serializer.save(total_amount=total_amount)
-
-#             if email:
-#                 email_subject = "Thank You for Your Order"
-#                 email_body = render_to_string('orderemail.html', {
-#                     'flower_name': flower.flower_name,
-#                     'quantity': quantity,
-#                     'total_amount': total_amount,
-#                     'email': email,
-#                     'phone': user_account.phone
-#                 })
-#                 email_message = EmailMultiAlternatives(
-#                     subject=email_subject, 
-#                     body='', 
-#                     to=[email]
-#                 )
-#                 email_message.attach_alternative(email_body, "text/html")
-#                 email_message.send()
-#         else:
-#             raise serializers.ValidationError("Insufficient stock for the selected flower.")
-        
-#         def update(self, request, *args, **kwargs):
-#             partial = kwargs.pop('partial', False)
-#             instance = self.get_object()
-#             status_before_update = instance.order_status
-
-#             serializer = self.get_serializer(instance, data=request.data, partial=partial)
-#             serializer.is_valid(raise_exception=True)
-#             self.perform_update(serializer)
-#             if serializer.validated_data.get('order_status') == 'Completed' and status_before_update != 'Completed':
-#                 user_email = instance.account.user.email
-#                 if user_email:
-#                     email_subject = "Order Completed"
-#                     email_body = render_to_string('order_completed_email.html', {
-#                         'user': instance.account.user,
-#                         'order': instance,
-#                     })
-#                     email_message = EmailMultiAlternatives(email_subject, '', to=[user_email])
-#                     email_message.attach_alternative(email_body, "text/html")
-#                     email_message.send()
-#             return Response(serializer.data)
-
-
-#finally done!
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     http_method_names = ['get', 'post', 'patch', 'put', 'delete', 'head', 'options']
     
     def get_queryset(self):
-        user_account = self.request.user.account
-        if user_account.user_type == 'Admin':
-            return Order.objects.all()
-        else:
-            return Order.objects.filter(user=user_account)
+        queryset = super().get_queryset()
+        customer_id = self.request.query_params.get('customer_id')
+        if customer_id:
+            queryset = queryset.filter(user_id=customer_id)
+        return queryset
 
     def perform_create(self, serializer):
         flower = serializer.validated_data.get('flower')
-        user_account = self.request.user.account
+        user_account = serializer.validated_data.get('user')
         quantity = serializer.validated_data.get('quantity')
 
-        email = user_account.user.email if user_account and user_account.user.email else None
+        if user_account:
+            email = user_account.user.email
+            email = None
 
         if flower and flower.stock >= quantity:
             flower.stock -= quantity
             flower.save()
-
             total_amount = flower.price * quantity
 
-            order = serializer.save(total_amount=total_amount, user=user_account)
+            order = serializer.save(total_amount=total_amount)
 
             if email:
                 email_subject = "Thank You for Your Order"
@@ -162,20 +47,16 @@ class OrderViewSet(viewsets.ModelViewSet):
                     'email': email,
                     'phone': user_account.phone
                 })
-                email_message = EmailMultiAlternatives(
-                    subject=email_subject, 
-                    body='', 
-                    to=[email]
-                )
+                email_message = EmailMultiAlternatives(email_subject, '', to=[email])
                 email_message.attach_alternative(email_body, "text/html")
                 email_message.send()
         else:
             raise serializers.ValidationError("Insufficient stock for the selected flower.")
-
+    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        status_before_update = instance.status  # Assuming 'status' is the correct field
+        status_before_update = instance.status
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -192,8 +73,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 email_message = EmailMultiAlternatives(email_subject, '', to=[user_email])
                 email_message.attach_alternative(email_body, "text/html")
                 email_message.send()
-
         return Response(serializer.data)
+
 
 class OrderDetailAPIView(APIView):
     def get_object(self, pk):
