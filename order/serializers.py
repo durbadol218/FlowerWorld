@@ -9,10 +9,10 @@ class OrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
-        fields = ['id', 'username', 'placed_time', 'status', 'flower', 'flower_name', 'flower_price', 'quantity', 'total_amount']
+        fields = ['id','user','username', 'placed_time', 'status', 'flower', 'flower_name', 'flower_price', 'quantity', 'total_amount']
     
     def get_username(self, obj):
-        return obj.user.user.username if obj.user else None
+        return obj.user.user.username if obj.user and obj.user.user else None
     
     def get_flower_name(self, obj):
         return obj.flower.flower_name if obj.flower else None

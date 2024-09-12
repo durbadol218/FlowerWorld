@@ -26,11 +26,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         flower = serializer.validated_data.get('flower')
         user_account = serializer.validated_data.get('user')
         quantity = serializer.validated_data.get('quantity')
+        
+        print(f"Flower: {flower}")
+        print(f"User Account: {user_account}")
+        print(f"Quantity: {quantity}")
 
+
+        email=None
         if user_account:
             email = user_account.user.email
-            email = None
-
+            print(f"User email: {email}")
+            
         if flower and flower.stock >= quantity:
             flower.stock -= quantity
             flower.save()
@@ -39,6 +45,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order = serializer.save(total_amount=total_amount)
 
             if email:
+                print("Email:", email)
                 email_subject = "Thank You for Your Order"
                 email_body = render_to_string('orderemail.html', {
                     'flower_name': flower.flower_name,
@@ -47,9 +54,17 @@ class OrderViewSet(viewsets.ModelViewSet):
                     'email': email,
                     'phone': user_account.phone
                 })
-                email_message = EmailMultiAlternatives(email_subject, '', to=[email])
-                email_message.attach_alternative(email_body, "text/html")
-                email_message.send()
+                print(f"Email Subject: {email_subject}")
+                print(f"Email Body: {email_body}")
+                try:
+                    email_message = EmailMultiAlternatives(email_subject, '', to=[email])
+                    email_message.attach_alternative(email_body, "text/html")
+                    email_message.send()
+                    print(f"Email sent to {email}")
+                except Exception as e:
+                    print(f"Failed to send email: {e}")
+            else:
+                print("No email found!")
         else:
             raise serializers.ValidationError("Insufficient stock for the selected flower.")
     
