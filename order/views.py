@@ -78,7 +78,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         if serializer.validated_data.get('status') == 'Completed' and status_before_update != 'Completed':
-            user_email = instance.user.email
+            user_email = getattr(instance.user, 'email', None)
             if user_email:
                 email_subject = "Order Completed"
                 email_body = render_to_string('order_completed_email.html', {
@@ -87,7 +87,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                 })
                 email_message = EmailMultiAlternatives(email_subject, '', to=[user_email])
                 email_message.attach_alternative(email_body, "text/html")
-                email_message.send()
+                try:
+                    email_message.send()
+                    print("Email sent successfully to {user_email}!")
+                except Exception as e:
+                    print(f"Failed to send email: {e}")
+            else:
+                print("No email address found for user.") 
         return Response(serializer.data)
 
 
