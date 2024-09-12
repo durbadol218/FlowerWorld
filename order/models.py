@@ -5,7 +5,7 @@ from flowers.models import Flower
 class Order(models.Model):
     ORDER_STATUS = [
         ('Pending', 'Pending'),
-        ('Successful', 'Successful'),
+        ('Completed', 'Completed'),
         ('Cancelled', 'Cancelled'),
         ('Failed', 'Failed'),
     ]
