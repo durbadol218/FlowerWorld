@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'flowers',
     'order',
     'user',
-    'review',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
