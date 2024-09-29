@@ -97,3 +97,8 @@ class UserLogoutApiView(APIView):
         request.user.auth_token.delete()
         logout(request)
         return redirect('login')
+    
+class TotalUsersCountView(APIView):
+    def get(self, request, *args, **kwargs):
+        total_users = User.objects.count()
+        return Response({'total_users': total_users})

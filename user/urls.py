@@ -33,23 +33,5 @@ urlpatterns = [
     path('activate/<uid64>/<token>/', views.activateAccount, name='activate'),
     path('login/', views.UserLoginApiView.as_view(), name='login'),
     path('logout/', views.UserLogoutApiView.as_view(), name='logout'),
+    path('user-count/', views.TotalUsersCountView.as_view(), name='user_count'),
 ]
-
-
-
-
-# from django.urls import path, include
-# from rest_framework.routers import DefaultRouter
-# from .views import AccountViewset, UserRegistrationApiView, AccountRegistrationApiView, activateAccount, UserLoginApiView, UserLogoutApiView
-
-# router = DefaultRouter()
-# router.register(r'accounts', AccountViewset, basename='account')
-
-# urlpatterns = [
-#     path('api/', include(router.urls)),
-#     path('register/', UserRegistrationApiView.as_view(), name='register'),
-#     path('account/register/', AccountRegistrationApiView.as_view(), name='account_register'),
-#     path('activate/<uid64>/<token>/', activateAccount, name='activate'),
-#     path('login/', UserLoginApiView.as_view(), name='login'),
-#     path('logout/', UserLogoutApiView.as_view(), name='logout'),
-# ]
