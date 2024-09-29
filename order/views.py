@@ -8,7 +8,7 @@ from .serializers import OrderSerializer
 from flowers.models import Flower
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-
+from rest_framework.decorators import action
 #Previous versions
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -95,7 +95,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             else:
                 print("No email address found for user.") 
         return Response(serializer.data)
-
+    
+    @action(detail=False, methods=['get'], url_path='order_count')
+    def order_count(self,request):
+        total_orders = Order.objects.count()
+        return Response({'total_orders': total_orders})
 
 class OrderDetailAPIView(APIView):
     def get_object(self, pk):
@@ -128,7 +132,8 @@ class OrderDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
-
-
+# class CountOrders(APIView):
+#     def get(self,request,*args,**kwargs):
+#         total_orders = Order.objects.count()
+#         return Response({'total_orders': total_orders})
 
