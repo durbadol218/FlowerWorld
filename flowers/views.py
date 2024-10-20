@@ -3,6 +3,7 @@ from .models import Flower, FlowerCategory
 from .serializers import FlowerSerializer, FlowerCategorySerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 
 class FlowerViewSet(viewsets.ModelViewSet):
     queryset = Flower.objects.all()
@@ -24,3 +25,35 @@ class FlowerViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = FlowerCategory.objects.all()
     serializer_class = FlowerCategorySerializer
+
+# class CountFlowersView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         print("CountFlowersView accessed")
+#         total_flowers = Flower.objects.count()  # Count total flowers
+#         return Response({'total_flowers': total_flowers})
+    
+    
+    
+    
+    
+# class TotalProductCountView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         total_products = Flower.objects.count()
+        
+#         unique_categories = FlowerCategory.objects.values_list('category', flat=True).distinct()
+#         unique_categories_count = unique_categories.count()
+#         response_data = {
+#             'total_products': total_products,
+#             'unique_categories_count': unique_categories_count,
+#             'unique_categories': list(unique_categories)
+#         }
+#         return Response(response_data)
+class CountFlowersAndCategoriesView(APIView):
+    def get(self, request, *args, **kwargs):
+        total_flowers = Flower.objects.count()
+        total_categories = FlowerCategory.objects.count()
+        
+        return Response({
+            'total_flowers': total_flowers,
+            'total_categories': total_categories
+        })

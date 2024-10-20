@@ -51,7 +51,64 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         account = models.Account.objects.create(user=user, user_type=user_type)
         account.save()
         return user
+# from rest_framework import serializers
+# from django.contrib.auth.models import User
+# from .models import Account
+# from .constants import USER_TYPE
 
+
+# class UserProfileUpdate(serializers.ModelSerializer):
+#     phone = serializers.CharField(source='account.phone', required=True)
+#     user_type = serializers.ChoiceField(source='account.user_type', choices=USER_TYPE, required=True)
+#     image = serializers.ImageField(source='account.image', required=False)
+#     new_password = serializers.CharField(required=False, write_only=True)
+#     confirm_password = serializers.CharField(required=False, write_only=True)
+
+#     class Meta:
+#         model = User
+#         fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'user_type', 'image', 'new_password', 'confirm_password']
+
+#     def update(self, instance, validated_data):
+#         account_data = validated_data.pop('account', {})
+#         instance.username = validated_data.get('username', instance.username)
+#         instance.first_name = validated_data.get('first_name', instance.first_name)
+#         instance.last_name = validated_data.get('last_name', instance.last_name)
+#         instance.email = validated_data.get('email', instance.email)
+        
+#         # Handle password change
+#         new_password = validated_data.get('new_password')
+#         confirm_password = validated_data.get('confirm_password')
+#         if new_password and new_password == confirm_password:
+#             instance.set_password(new_password)
+
+#         instance.save()
+        
+#         account = instance.account
+#         account.phone = account_data.get('phone', account.phone)
+#         account.user_type = account_data.get('user_type', account.user_type)
+#         account.image = account_data.get('image', account.image)
+#         account.save()
+
+#         return instance
+    
+    
+
+# class ChangePassword(serializers.Serializer):
+#     new_password = serializers.CharField(required=True)
+#     confirm_password = serializers.CharField(required=True)
+    
+#     def validate(self,attrs):
+#         if attrs['new_password'] != attrs['confirm_password']:
+#             raise serializers.ValidationError("New password and confirm password do not match.")
+#         return attrs
+    
+#     def update_password(self,user,validated_data):
+#         user.set_password(validated_data['new_password'])
+#         user.save()
+#         return user
+    
+    
+    
 # class AccountRegisterSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = models.Account
@@ -71,3 +128,30 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
+
+# class UserProfileUpdate(serializers.Serializer):
+#     phone = serializers.CharField(source='account.phone', required=True)
+#     user_type = serializers.ChoiceField(source='account.user_type', choices=USER_TYPE, required=True)
+#     image = serializers.ImageField(source='account.image', required=False)
+    
+#     class Meta:
+#         model = User
+#         fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'user_type', 'image']
+    
+#     def update(self,instance,validated_data):
+#         account_data = validated_data.pop('account',{})
+#         instance.username = validated_data.get('username', instance.username)
+#         instance.first_name = validated_data.get('first_name', instance.first_name)
+#         instance.last_name = validated_data.get('last_name', instance.last_name)
+#         instance.email = validated_data.get('email', instance.email)
+#         instance.save()
+        
+#         account = instance.account
+#         account.phone = account_data.get('phone', account.phone)
+#         account.user_type = account_data.get('user_type', account.user_type)
+#         account.image = account_data.get('image', account.image)
+#         account.save()
+
+#         return instance
+    
+    

@@ -89,8 +89,50 @@ class UserLoginApiView(APIView):
             else:
                 return  Response({'error':'Invalid Credential'})
         return Response(serializer.errors)
-                
-                
+# class UserProfileUpdateView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = serializers.UserProfileUpdate(instance=user)
+#         return Response(serializer.data)
+
+#     def post(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = UserProfileUpdate(instance=user, data=request.data)
+        
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+        
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# class ChangePasswordView(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     def post(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = serializers.ChangePassword(data=request.data)
+        
+#         if serializer.is_valid():
+#             serializer.update(user, serializer.validated_data)
+#             return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+# class UserProfileUpdate(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     def get(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = serializers.UserProfileUpdate(instance=user)
+#         return Response(serializer.data)
+#     def post(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = UserProfielUpdate(instance=user)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 
 class UserLogoutApiView(APIView):
     def get(self, request):
