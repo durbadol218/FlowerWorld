@@ -9,6 +9,7 @@ from flowers.models import Flower
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from django.conf import settings
 #Previous versions
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -44,6 +45,27 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             order = serializer.save(total_amount=total_amount)
 
+            # if email:
+            #     print("Email:", email)
+            #     email_subject = "Thank You for Your Order"
+            #     email_body = render_to_string('orderemail.html', {
+            #         'flower_name': flower.flower_name,
+            #         'quantity': quantity,
+            #         'total_amount': total_amount,
+            #         'email': email,
+            #         'phone': user_account.phone
+            #     })
+            #     print(f"Email Subject: {email_subject}")
+            #     print(f"Email Body: {email_body}")
+            #     try:
+            #         email_message = EmailMultiAlternatives(email_subject, '', to=[email])
+            #         email_message.attach_alternative(email_body, "text/html")
+            #         email_message.send()
+            #         print(f"Email sent to {email}")
+            #     except Exception as e:
+            #         print(f"Failed to send email: {e}")
+            # else:
+            #     print("No email found!")
             if email:
                 print("Email:", email)
                 email_subject = "Thank You for Your Order"
@@ -57,7 +79,12 @@ class OrderViewSet(viewsets.ModelViewSet):
                 print(f"Email Subject: {email_subject}")
                 print(f"Email Body: {email_body}")
                 try:
-                    email_message = EmailMultiAlternatives(email_subject, '', to=[email])
+                    email_message = EmailMultiAlternatives(
+                        subject=email_subject, 
+                        body="Thank you for your order. We have received it and are processing it.",
+                        from_email=settings.EMAIL_HOST_USER,
+                        to=[email]
+                    )
                     email_message.attach_alternative(email_body, "text/html")
                     email_message.send()
                     print(f"Email sent to {email}")
